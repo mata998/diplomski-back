@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title>Video stream sample</title>
+
+    <link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet" />
+
+    <!-- tema -->
+    <link
+      href="https://unpkg.com/@videojs/themes@1/dist/forest/index.css"
+      rel="stylesheet"
+    />
+
+    <!-- overlay -->
+    <link
+      href="https://unpkg.com/videojs-overlay@2.1.4/dist/videojs-overlay.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      .video-js .vjs-overlay-center {
+        margin-left: 0;
+      }
+      .vjs-overlay {
+        pointer-events: none;
+        margin: 0;
+        padding: 0;
+      }
+      .watermark {
+        color: red;
+        font-size: 50px;
+        opacity: 0.5;
+        margin: 0;
+        padding: 0;
+        transform: translateX(-50%);
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>idemoooo :(</h1>
+    <video
+      id="videoPlayer"
+      class="video-js"
+      width="800px"
+      controls
+      muted="muted"
+      controlsList="nodownload"
+      data-setup="{}"
+    >
+      <source
+        src="/api/course/video?name=1/Java/1) Uvod/1) Prvi video"
+        type="video/mp4"
+      />
+    </video>
+
+    <form action="/video-upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="inputVideo" id="" />
+      <input type="submit" value="ajmo" />
+    </form>
+    <!-- <button onclick="dugme()">AJMO</button> -->
+
+    <script src="https://vjs.zencdn.net/7.11.4/video.min.js"></script>
+    <script src="https://unpkg.com/videojs-overlay@2.1.4/dist/videojs-overlay.js"></script>
+    <script>
+      let player = videojs("videoPlayer", {
+        playbackRates: [1, 1.2, 1.5, 1.7, 2, 3],
+      });
+
+      player.overlay({
+        content: `<h1 class="watermark">omg</h1>`,
+        start: "play",
+        showBackground: false,
+        align: "center",
+      });
+
+      const roditelj = document.querySelector("#videoPlayer");
+
+      let current = document.querySelector(
+        ".vjs-overlay.vjs-overlay-center.vjs-overlay-no-background"
+      );
+
+      const real = current.cloneNode(true);
+      real.classList.remove("vjs-hidden");
+
+      function dugme() {
+        clone = real.cloneNode(true);
+
+        current.remove();
+        roditelj.appendChild(clone);
+
+        current = clone;
+      }
+
+      setInterval(() => {
+        dugme();
+      }, 5000);
+    </script>
+  </body>
+</html>

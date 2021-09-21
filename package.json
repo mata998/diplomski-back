@@ -1,0 +1,25 @@
+{
+  "name": "video-stream-sample",
+  "version": "1.0.0",
+  "description": "Streaming video example",
+  "main": "server.js",
+  "engines": {
+    "node": ">=6.2.0"
+  },
+  "scripts": {
+    "start": "nodemon server.js",
+    "dbuild": "docker image build -t mata998/udemy-test . && docker image push mata998/udemy-test",
+    "fullbuild": "cd ../diplomski-front && npm run dbuild && cd ../diplomski-back && npm run dbuild"
+  },
+  "author": "daspinola",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.15.3",
+    "express-fileupload": "^1.2.1",
+    "jsonwebtoken": "^8.5.1",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.12",
+    "universal-cookie": "^4.0.4"
+  }
+}
