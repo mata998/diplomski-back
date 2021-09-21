@@ -57,16 +57,6 @@ app.post("/video-upload", function (req, res) {
   });
 });
 
-app.get("/mysql", async (req, res) => {
-  try {
-    const data = await DB.getWhere("video", "courseid", 1);
-
-    res.json(data);
-  } catch (err) {
-    res.json({ err });
-  }
-});
-
 app.listen(3000, function () {
   console.log(`Listening on port 3000!`);
 });
