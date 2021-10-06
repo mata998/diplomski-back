@@ -57,8 +57,12 @@
       />
     </video>
 
-    <form action="/video-upload" method="post" enctype="multipart/form-data">
-      <input type="file" name="inputVideo" id="" />
+    <form
+      action="http://localhost:3000/video-upload"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <input type="file" multiple="multiple" name="inputVideo" />
       <input type="submit" value="ajmo" />
     </form>
     <!-- <button onclick="dugme()">AJMO</button> -->

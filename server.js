@@ -4,6 +4,7 @@ const app = express();
 
 // Requires
 const fs = require("fs");
+const util = require("util");
 const path = require("path");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
@@ -36,25 +37,41 @@ app.use("/api/admin", userFromTokenMid, isAdminMid, adminRouter);
 
 // API
 
-app.post("/video-upload", function (req, res) {
-  let sampleFile;
-  let uploadPath;
-
+app.post("/video-upload", async function (req, res) {
   if (!req.files) {
-    return res.status(400).send("No files were uploaded.");
+    return res.json({ success: false, err: "No req.files" });
   }
 
-  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-  sampleFile = req.files.inputVideo;
-  uploadPath = "volume-folder/" + sampleFile.name;
+  try {
+    console.log(req.files.files);
+    console.log(req.body.paths);
 
-  console.log(uploadPath);
+    const files = req.files.files;
+    const paths = req.body.paths;
 
-  // Use the mv() method to place the file somewhere on your server
-  sampleFile.mv(uploadPath, function (err) {
-    if (err) return res.status(500).send(err);
-    res.send("File uploaded!");
-  });
+    const promises = [];
+
+    files.forEach((file, index) => {
+      // const uploadPath = "volume-folder/" + file.name;
+      const uploadPath = "volume-folder/" + paths[index];
+      const dirPath = path.dirname(uploadPath);
+
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+
+      file.mv = util.promisify(file.mv);
+
+      promises.push(file.mv(uploadPath));
+    });
+
+    await Promise.all(promises);
+
+    return res.send("File uploaded!");
+  } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
 });
 
 app.listen(3000, function () {

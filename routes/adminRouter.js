@@ -13,6 +13,8 @@ router.get("/isadmin", async (req, res) => {
   }
 });
 
+// Courses
+
 router.post("/create-course", async (req, res) => {
   try {
     const course = req.body;
@@ -41,7 +43,7 @@ router.delete("/delete-course/:courseId", async (req, res) => {
     // Delete from tables  course, vide, usercourse
     await DB.deleteCourse(courseId);
 
-    // Delete forlder
+    // Delete folder
     const path = `volume-folder/${courseId}`;
     fs.rmdirSync(path, { recursive: true });
 
@@ -52,11 +54,54 @@ router.delete("/delete-course/:courseId", async (req, res) => {
   }
 });
 
+// Videos
+
+router.delete("/videos/:videoId", async (req, res) => {
+  try {
+    const videoId = req.params.videoId;
+
+    // Get video
+    const rows = await DB.getWhere("video", "videoid", parseInt(videoId));
+    const video = rows[0];
+
+    console.log(video);
+
+    // Video path
+    const videoPath = video.path;
+
+    // Delete from table videos
+    await DB.deleteVideo(videoId);
+
+    // Delete video from fs
+    const path = `volume-folder/${videoPath}`;
+    fs.unlinkSync(path);
+
+    res.json({ success: true, msg: "Video deleted" });
+  } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
+});
+
+// Users
+
 router.get("/users", async (req, res) => {
   try {
     const users = await DB.getWhere("user", "role", "user");
 
     return res.json({ success: true, data: users });
+  } catch (err) {
+    res.json({ success: false, err: err.message });
+  }
+});
+
+router.delete("/users/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    await DB.deleteUser(userId);
+
+    res.json({ success: true, msg: "User deleted" });
   } catch (err) {
     res.json({ success: false, err: err.message });
   }

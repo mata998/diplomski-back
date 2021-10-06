@@ -88,6 +88,12 @@ async function registerUser(user) {
   );
 }
 
+async function deleteUser(userId) {
+  await pool.query(`delete from user where userid=?`, [userId]);
+  await pool.query(`delete from userfingerprint where userid=?`, [userId]);
+  await pool.query(`delete from usercourse where userid=?`, [userId]);
+}
+
 // Courses
 
 async function createCourse({ name, description }) {
@@ -107,6 +113,12 @@ async function deleteCourse(courseId) {
   await pool.query(`delete from video where courseid=?`, [courseId]);
 }
 
+// Videos
+
+async function deleteVideo(videoId) {
+  await pool.query(`delete from video where videoid=?`, [videoId]);
+}
+
 module.exports = {
   pool,
   getAll,
@@ -116,4 +128,6 @@ module.exports = {
   registerUser,
   createCourse,
   deleteCourse,
+  deleteUser,
+  deleteVideo,
 };
