@@ -4,6 +4,8 @@ const router = express.Router();
 const DB = require("../db-files/db-functions");
 const { userFromTokenMid } = require("../middlewares/middlewares");
 
+// api/course/
+
 router.get("/", async (req, res) => {
   try {
     const data = await DB.getAll("course");
