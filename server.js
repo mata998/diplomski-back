@@ -52,7 +52,6 @@ app.post("/video-upload", async function (req, res) {
     const promises = [];
 
     files.forEach((file, index) => {
-      // const uploadPath = "volume-folder/" + file.name;
       const uploadPath = "volume-folder/" + paths[index];
       const dirPath = path.dirname(uploadPath);
 
