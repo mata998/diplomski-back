@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
+const util = require("util");
 const fs = require("fs");
+const path = require("path");
 const DB = require("../db-files/db-functions");
 const { userFromTokenMid, isAdminMid } = require("../middlewares/middlewares");
 const { createToken, checkFingerPrint } = require("../utils/utils");
+
+// Is admin
 
 router.get("/isadmin", async (req, res) => {
   try {
@@ -69,15 +73,96 @@ router.delete("/videos/:videoId", async (req, res) => {
     // Video path
     const videoPath = video.path;
 
+    // Delete video from fs
+    const fullPath = `volume-folder/${videoPath}`;
+    fs.unlinkSync(fullPath);
+
+    const dirPath = path.dirname(fullPath);
+
+    // If folder is empy, delete it
+    if (fs.readdirSync(dirPath).length === 0) {
+      fs.rmdirSync(dirPath);
+    }
+
     // Delete from table videos
     await DB.deleteVideo(videoId);
 
-    // Delete video from fs
-    const path = `volume-folder/${videoPath}`;
-    fs.unlinkSync(path);
-
     res.json({ success: true, msg: "Video deleted" });
   } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
+});
+
+router.post("/videos", async function (req, res) {
+  if (!req.files) {
+    return res.json({ success: false, err: "No req.files" });
+  }
+
+  try {
+    // req.files.files can be array or single object,
+    // if its an obj, put it in array
+    const files = Array.isArray(req.files.files)
+      ? req.files.files
+      : [req.files.files];
+
+    const paths = Array.isArray(req.body.paths)
+      ? req.body.paths
+      : [req.body.paths];
+
+    console.log(files);
+    console.log(paths);
+
+    const videosDB = [];
+
+    const promises = [];
+
+    // Upload to fs
+
+    files.forEach((file, index) => {
+      // "Novi folder/Unutrasnji folder/video.mp4"
+      const videoPath = paths[index];
+
+      const uploadPath = `volume-folder/${videoPath}`;
+      const dirPath = path.dirname(uploadPath);
+
+      // If file exists throw err
+      if (fs.existsSync(uploadPath)) {
+        throw new Error("Error: That file exists");
+      }
+
+      // If folder doesnt exist, create it
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+
+      // Promisify .mv function
+      file.mv = util.promisify(file.mv);
+
+      // Add create file promise to promises arr
+      promises.push(file.mv(uploadPath));
+
+      // videoDB object
+      videoObj = {
+        courseid: videoPath.split("/")[0],
+        name: path.basename(videoPath),
+        path: videoPath,
+      };
+
+      // Add video object to videosDB arr for db insert
+      videosDB.push(videoObj);
+    });
+
+    // Every file uploaded
+    await Promise.all(promises);
+
+    // Add to db
+    const result = await DB.insertVideos(videosDB);
+    console.log(result);
+
+    return res.json({ success: true, msg: "Files uploaded" });
+  } catch (err) {
+    // console.log(err.message);
     console.log(err.message);
     res.json({ success: false, err: err.message });
   }

@@ -119,6 +119,15 @@ async function deleteVideo(videoId) {
   await pool.query(`delete from video where videoid=?`, [videoId]);
 }
 
+async function insertVideos(videosDB) {
+  const res = await pool.query(
+    "INSERT INTO video (courseid, name, path) VALUES ?",
+    [videosDB.map((video) => [video.courseid, video.name, video.path])]
+  );
+
+  return res;
+}
+
 module.exports = {
   pool,
   getAll,
@@ -130,4 +139,5 @@ module.exports = {
   deleteCourse,
   deleteUser,
   deleteVideo,
+  insertVideos,
 };
