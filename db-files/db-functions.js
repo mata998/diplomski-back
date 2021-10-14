@@ -135,6 +135,42 @@ async function requestCourse(userId, courseId) {
   );
 }
 
+async function getAllRequestedCourses() {
+  const rows = await pool.query(
+    `
+    select u.userid, u.name as username, c.courseid, c.name as coursename 
+    from usercourse uc
+      join user u on (uc.userid = u.userid)
+      join course c on (uc.courseid = c.courseid)
+     where 
+      uc.unlockedat is null and 
+      uc.finishedat is null
+  `
+  );
+
+  if (rows.length != 0) {
+    return rows;
+  } else {
+    throw new Error("No courses found");
+  }
+}
+
+async function approveCourseRequest(userId, courseId) {
+  const res = pool.query(
+    `
+    update usercourse
+    set unlockedat =  SYSDATE()
+    where 
+      userid = ? and 
+      courseid = ? and
+      unlockedat is null
+    `,
+    [userId, courseId]
+  );
+
+  return res;
+}
+
 async function createCourse({ name, description }) {
   const res = await pool.query(
     `
@@ -181,4 +217,6 @@ module.exports = {
   insertVideos,
   getAllCoursesForUser,
   requestCourse,
+  getAllRequestedCourses,
+  approveCourseRequest,
 };

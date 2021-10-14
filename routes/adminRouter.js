@@ -58,6 +58,35 @@ router.delete("/delete-course/:courseId", async (req, res) => {
   }
 });
 
+router.get("/requested-courses", async (req, res) => {
+  try {
+    const rows = await DB.getAllRequestedCourses();
+
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
+});
+
+router.patch("/approve-course", async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const courseId = req.body.courseId;
+
+    const resp = await DB.approveCourseRequest(userId, courseId);
+
+    if (resp.affectedRows == 1) {
+      return res.json({ success: true, msg: "Course unlocked" });
+    } else {
+      return res.json({ success: false, err: resp });
+    }
+  } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
+});
+
 // Videos
 
 router.delete("/videos/:videoId", async (req, res) => {
