@@ -27,30 +27,10 @@ async function getWhere(tableName, field, value) {
 
 // Users
 
-async function getUnlockedCourses(userId) {
-  const rows = await pool.query(
-    `
-    select c.* from usercourse uc
-    join course c on (uc.courseid = c.courseid)
-    where 
-    	uc.userid = ? and 
-      uc.finishedat is null and
-      uc.unlockedat is not null 
-  `,
-    [userId]
-  );
-
-  if (rows.length != 0) {
-    return rows;
-  } else {
-    throw new Error("No courses found");
-  }
-}
-
 async function getUserForToken(userId) {
   const data = await pool.query(
     `
-    select u.*, uc.courseid, uf.fingerprint from user u
+    select u.*, uc.courseid, uc.unlockedat, uc.finishedat, uf.fingerprint from user u
 	    left join usercourse uc on (u.userid = uc.userid)
       left join userfingerprint uf on (u.userid = uf.userid)
     where 
@@ -64,7 +44,15 @@ async function getUserForToken(userId) {
   }
 
   const user = data[0];
-  user.courses = [...new Set(data.map((row) => row.courseid))];
+
+  user.courses = [];
+  data.forEach((row) => {
+    if (row.unlockedat != null && row.finishedat == null) {
+      user.courses.push(row.courseid);
+    }
+  });
+  user.courses = [...new Set(user.courses)];
+
   user.fingerprints = [...new Set(data.map((row) => row.fingerprint))];
 
   return user;
@@ -95,6 +83,57 @@ async function deleteUser(userId) {
 }
 
 // Courses
+
+async function getUnlockedCourses(userId) {
+  const rows = await pool.query(
+    `
+    select c.* from usercourse uc
+    join course c on (uc.courseid = c.courseid)
+    where 
+    	uc.userid = ? and 
+      uc.unlockedat is not null and
+      uc.finishedat is null 
+  `,
+    [userId]
+  );
+
+  if (rows.length != 0) {
+    return rows;
+  } else {
+    throw new Error("No courses found");
+  }
+}
+
+async function getAllCoursesForUser(userId) {
+  const rows = await pool.query(
+    `
+    select c.*, uc.userid, uc.unlockedat, uc.finishedat 
+    from course c
+      left join (select * from usercourse where userid = ?) uc 
+        on (c.courseid = uc.courseid)
+        order by 
+          uc.finishedat asc, 
+          uc.userid asc, 
+          uc.unlockedat asc
+  `,
+    [userId]
+  );
+
+  if (rows.length != 0) {
+    return rows;
+  } else {
+    throw new Error("No courses found");
+  }
+}
+
+async function requestCourse(userId, courseId) {
+  const res = await pool.query(
+    `
+    INSERT INTO usercourse(userid, courseid) VALUES (?,?)
+    `,
+    [userId, courseId]
+  );
+}
 
 async function createCourse({ name, description }) {
   const res = await pool.query(
@@ -140,4 +179,6 @@ module.exports = {
   deleteUser,
   deleteVideo,
   insertVideos,
+  getAllCoursesForUser,
+  requestCourse,
 };

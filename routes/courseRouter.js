@@ -4,7 +4,7 @@ const router = express.Router();
 const DB = require("../db-files/db-functions");
 const { userFromTokenMid } = require("../middlewares/middlewares");
 
-// api/course/
+// api/courses/
 
 router.get("/", async (req, res) => {
   try {
@@ -26,6 +26,36 @@ router.get("/info/:courseId", async (req, res) => {
 
     res.json({ success: true, data: course });
   } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
+});
+
+// With token
+
+router.get("/request-course/:courseId", userFromTokenMid, async (req, res) => {
+  try {
+    const user = req.user;
+    const userId = user.userid;
+    const courseId = req.params.courseId;
+
+    await DB.requestCourse(userId, courseId);
+
+    res.json({ success: true, mgs: "Course requested" });
+  } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
+});
+
+router.get("/for-user", userFromTokenMid, async (req, res) => {
+  try {
+    const user = req.user;
+    const data = await DB.getAllCoursesForUser(user.userid);
+
+    res.json({ success: true, data });
+  } catch (err) {
+    console.log(err.message);
     res.json({ success: false, err: err.message });
   }
 });
@@ -42,6 +72,7 @@ router.get("/unlocked", userFromTokenMid, async (req, res) => {
 
     res.json({ success: true, data });
   } catch (err) {
+    console.log(err.message);
     res.json({ success: false, err: err.message });
   }
 });
@@ -60,6 +91,7 @@ router.get("/videos/:courseId", userFromTokenMid, async (req, res) => {
 
     res.json({ success: true, data });
   } catch (err) {
+    console.log(err.message);
     res.json({ success: false, err: err.message });
   }
 });

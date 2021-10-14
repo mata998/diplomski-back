@@ -3,7 +3,6 @@ const router = express.Router();
 const DB = require("../db-files/db-functions");
 const { createToken, checkFingerPrint } = require("../utils/utils");
 
-// dodati browser fp
 router.post("/", async (req, res) => {
   try {
     const { userId, fingerprint } = req.body;
@@ -46,6 +45,7 @@ router.post("/", async (req, res) => {
 
     res.json({ case: "login", data: forUser });
   } catch (err) {
+    console.log(err);
     res.json({ success: false, err: err.message });
   }
 });

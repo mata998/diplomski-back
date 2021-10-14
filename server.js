@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(fileUpload());
 
 // Routes
-app.use("/api/course", courseRouter);
+app.use("/api/courses", courseRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/admin", userFromTokenMid, isAdminMid, adminRouter);
 
