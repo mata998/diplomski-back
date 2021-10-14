@@ -36,8 +36,8 @@ function validateFingerprints(f1, f2) {
     f1.gpu == f2.gpu &&
     f1.cores == f2.cores &&
     f1.platform == f2.platform &&
-    f1.screen == f2.screen &&
     f1.orientation == f2.orientation
+    // f1.screen == f2.screen &&
   ) {
     // Fingerprints matching
     return true;

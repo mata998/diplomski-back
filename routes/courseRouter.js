@@ -51,7 +51,7 @@ router.get("/videos/:courseId", userFromTokenMid, async (req, res) => {
     const user = req.user;
     const courseId = parseInt(req.params.courseId);
 
-    if (!user.courses.includes(courseId)) {
+    if (user.role != "admin" && !user.courses.includes(courseId)) {
       console.log("Korisnik nema pravo na kursss");
       return res.json({ success: false, err: "You dont own this course" });
     }
