@@ -67,8 +67,13 @@ router.get("/unlocked", userFromTokenMid, async (req, res) => {
     console.log(user);
 
     const userId = user.userid;
+    let data;
 
-    const data = await DB.getUnlockedCourses(userId);
+    if (user.role == "admin") {
+      data = await DB.getAll("course");
+    } else {
+      data = await DB.getUnlockedCourses(userId);
+    }
 
     res.json({ success: true, data });
   } catch (err) {
@@ -83,7 +88,7 @@ router.get("/videos/:courseId", userFromTokenMid, async (req, res) => {
     const courseId = parseInt(req.params.courseId);
 
     if (user.role != "admin" && !user.courses.includes(courseId)) {
-      console.log("Korisnik nema pravo na kursss");
+      console.log("Unauthorized course request");
       return res.json({ success: false, err: "You dont own this course" });
     }
 
@@ -104,8 +109,9 @@ router.get("/video", userFromTokenMid, function (req, res) {
 
     const courseId = videoName.split("/")[0];
 
-    if (!user.courses.includes(parseInt(courseId))) {
-      return res.send({ msg: "KUDA???" });
+    if (user.role != "admin" && !user.courses.includes(parseInt(courseId))) {
+      console.log("Unauthorized video request");
+      return res.send({ msg: "Video locked" });
     }
 
     const path = `volume-folder/${videoName}.mp4`;
@@ -140,7 +146,8 @@ router.get("/video", userFromTokenMid, function (req, res) {
       res.writeHead(206, head);
       file.pipe(res);
     } else {
-      return res.json({ msg: "deces poso" });
+      console.log("Blocked video request");
+      return res.json({ msg: "Video locked" });
     }
   } catch (err) {
     res.json({ err: err.message });

@@ -145,6 +145,7 @@ async function getAllRequestedCourses() {
      where 
       uc.unlockedat is null and 
       uc.finishedat is null
+    order by c.courseid
   `
   );
 
@@ -164,6 +165,20 @@ async function approveCourseRequest(userId, courseId) {
       userid = ? and 
       courseid = ? and
       unlockedat is null
+    `,
+    [userId, courseId]
+  );
+
+  return res;
+}
+
+async function deleteUserCourse(userId, courseId) {
+  const res = pool.query(
+    `
+    delete from usercourse
+    where 
+      userid = ? and 
+      courseid = ?
     `,
     [userId, courseId]
   );
@@ -219,4 +234,5 @@ module.exports = {
   requestCourse,
   getAllRequestedCourses,
   approveCourseRequest,
+  deleteUserCourse,
 };

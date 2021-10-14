@@ -77,7 +77,25 @@ router.patch("/approve-course", async (req, res) => {
     const resp = await DB.approveCourseRequest(userId, courseId);
 
     if (resp.affectedRows == 1) {
-      return res.json({ success: true, msg: "Course unlocked" });
+      return res.json({ success: true, msg: "Course approved" });
+    } else {
+      return res.json({ success: false, err: resp });
+    }
+  } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
+  }
+});
+
+router.post("/delete-usercourse", async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const courseId = req.body.courseId;
+
+    const resp = await DB.deleteUserCourse(userId, courseId);
+
+    if (resp.affectedRows == 1) {
+      return res.json({ success: true, msg: "Usercourse deleted" });
     } else {
       return res.json({ success: false, err: resp });
     }
