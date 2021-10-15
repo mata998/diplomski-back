@@ -78,8 +78,6 @@ async function registerUser(user) {
 
 async function deleteUser(userId) {
   await pool.query(`delete from user where userid=?`, [userId]);
-  await pool.query(`delete from userfingerprint where userid=?`, [userId]);
-  await pool.query(`delete from usercourse where userid=?`, [userId]);
 }
 
 // Courses
@@ -199,8 +197,6 @@ async function createCourse({ name, description }) {
 
 async function deleteCourse(courseId) {
   await pool.query(`delete from course where courseid=?`, [courseId]);
-  await pool.query(`delete from usercourse where courseid=?`, [courseId]);
-  await pool.query(`delete from video where courseid=?`, [courseId]);
 }
 
 // Videos
