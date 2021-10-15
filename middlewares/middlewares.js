@@ -19,8 +19,6 @@ function userFromTokenMid(req, res, next) {
 function isAdminMid(req, res, next) {
   const user = req.user;
 
-  console.log(user);
-
   // User is admin
   if (user.role == "admin") {
     next();

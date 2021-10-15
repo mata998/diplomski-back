@@ -3,7 +3,7 @@ const pool = require("./mysql-connection");
 // Abstract
 
 async function getAll(tableName) {
-  const rows = await pool.query(`select * from ${tableName}`);
+  const [rows, fields] = await pool.query(`select * from ${tableName}`);
 
   if (rows.length != 0) {
     return rows;
@@ -13,7 +13,7 @@ async function getAll(tableName) {
 }
 
 async function getWhere(tableName, field, value) {
-  const rows = await pool.query(
+  const [rows, fields] = await pool.query(
     `select * from ${tableName} where ${field} = ?`,
     [value]
   );
@@ -28,7 +28,7 @@ async function getWhere(tableName, field, value) {
 // Users
 
 async function getUserForToken(userId) {
-  const data = await pool.query(
+  const [rows, fields] = await pool.query(
     `
     select u.*, uc.courseid, uc.unlockedat, uc.finishedat, uf.fingerprint from user u
 	    left join usercourse uc on (u.userid = uc.userid)
@@ -39,41 +39,62 @@ async function getUserForToken(userId) {
     [userId]
   );
 
-  if (data.length == 0) {
+  if (rows.length == 0) {
     return undefined;
   }
 
-  const user = data[0];
+  // console.log(rows);
+
+  const user = rows[0];
 
   user.courses = [];
-  data.forEach((row) => {
+  rows.forEach((row) => {
     if (row.unlockedat != null && row.finishedat == null) {
       user.courses.push(row.courseid);
     }
   });
   user.courses = [...new Set(user.courses)];
 
-  user.fingerprints = [...new Set(data.map((row) => row.fingerprint))];
+  user.fingerprints = [
+    ...new Set(rows.map((row) => JSON.stringify(row.fingerprint))),
+  ];
 
   return user;
 }
 
+// TODO: ADD TRANSACTION
 async function registerUser(user) {
-  await pool.query(
-    `
-    INSERT INTO user (userid, name, mail, role)
-    VALUES (?, ?, ?, "user")  
-    `,
-    [user.uid, user.name, user.mail]
-  );
+  let connection;
 
-  await pool.query(
-    `
-    INSERT INTO userfingerprint (userid, fingerprint)
-    VALUES (?, ?)
-  `,
-    [user.uid, user.fingerprint]
-  );
+  try {
+    connection = await pool.getConnection();
+
+    await connection.beginTransaction();
+
+    await connection.query(
+      `
+        INSERT INTO user (userid, name, mail, role)
+        VALUES (?, ?, ?, "user")  
+      `,
+      [user.uid, user.name, user.mail]
+    );
+
+    await connection.query(
+      `
+        INSERT INTO userfingerprint (userid, fingerprint)
+        VALUES (?, ?)
+      `,
+      [user.uid, user.fingerprint]
+    );
+
+    connection.commit();
+    connection.release();
+  } catch (err) {
+    connection.rollback();
+    connection.release();
+    console.log("Transaction rolled back");
+    throw err;
+  }
 }
 
 async function deleteUser(userId) {
@@ -83,7 +104,7 @@ async function deleteUser(userId) {
 // Courses
 
 async function getUnlockedCourses(userId) {
-  const rows = await pool.query(
+  const [rows, fields] = await pool.query(
     `
     select c.* from usercourse uc
     join course c on (uc.courseid = c.courseid)
@@ -103,7 +124,7 @@ async function getUnlockedCourses(userId) {
 }
 
 async function getAllCoursesForUser(userId) {
-  const rows = await pool.query(
+  const [rows, fields] = await pool.query(
     `
     select c.*, uc.userid, uc.unlockedat, uc.finishedat 
     from course c
@@ -125,7 +146,7 @@ async function getAllCoursesForUser(userId) {
 }
 
 async function requestCourse(userId, courseId) {
-  const res = await pool.query(
+  const [data, smth] = await pool.query(
     `
     INSERT INTO usercourse(userid, courseid) VALUES (?,?)
     `,
@@ -134,7 +155,7 @@ async function requestCourse(userId, courseId) {
 }
 
 async function getAllRequestedCourses() {
-  const rows = await pool.query(
+  const [rows, fields] = await pool.query(
     `
     select u.userid, u.name as username, c.courseid, c.name as coursename 
     from usercourse uc
@@ -150,12 +171,12 @@ async function getAllRequestedCourses() {
   if (rows.length != 0) {
     return rows;
   } else {
-    throw new Error("No courses found");
+    throw new Error("No requests found");
   }
 }
 
 async function approveCourseRequest(userId, courseId) {
-  const res = pool.query(
+  const [data, fields] = pool.query(
     `
     update usercourse
     set unlockedat =  SYSDATE()
@@ -167,11 +188,11 @@ async function approveCourseRequest(userId, courseId) {
     [userId, courseId]
   );
 
-  return res;
+  return data;
 }
 
 async function deleteUserCourse(userId, courseId) {
-  const res = pool.query(
+  const [data, smth] = pool.query(
     `
     delete from usercourse
     where 
@@ -181,37 +202,41 @@ async function deleteUserCourse(userId, courseId) {
     [userId, courseId]
   );
 
-  return res;
+  return data;
 }
 
 async function createCourse({ name, description }) {
-  const res = await pool.query(
+  const [data, smth] = await pool.query(
     `
     INSERT INTO course (name, description) VALUES (?,?)
     `,
     [name, description]
   );
 
-  return res.insertId;
+  return data.insertId;
 }
 
 async function deleteCourse(courseId) {
-  await pool.query(`delete from course where courseid=?`, [courseId]);
+  const [data, smth] = await pool.query(`delete from course where courseid=?`, [
+    courseId,
+  ]);
 }
 
 // Videos
 
 async function deleteVideo(videoId) {
-  await pool.query(`delete from video where videoid=?`, [videoId]);
+  const [data, smth] = await pool.query(`delete from video where videoid=?`, [
+    videoId,
+  ]);
 }
 
 async function insertVideos(videosDB) {
-  const res = await pool.query(
+  const [data, fields] = await pool.query(
     "INSERT INTO video (courseid, name, path) VALUES ?",
     [videosDB.map((video) => [video.courseid, video.name, video.path])]
   );
 
-  return res;
+  return data;
 }
 
 module.exports = {

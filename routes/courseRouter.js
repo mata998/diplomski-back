@@ -64,8 +64,6 @@ router.get("/unlocked", userFromTokenMid, async (req, res) => {
   try {
     const user = req.user;
 
-    console.log(user);
-
     const userId = user.userid;
     let data;
 

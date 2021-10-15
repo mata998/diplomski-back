@@ -10,6 +10,8 @@ router.post("/", async (req, res) => {
     // User data, his courses and  fingerprints
     const user = await DB.getUserForToken(userId);
 
+    // console.log(user);
+
     // User doesnt exist
     if (!user) {
       return res.send({ case: "register", msg: "User doesnt exist" });
@@ -27,11 +29,9 @@ router.post("/", async (req, res) => {
       courses: user.courses,
     };
 
-    console.log("\n\nUser for token");
+    console.log("User for token");
     console.log(forToken);
-    console.log("\n\n");
-    // console.log(forToken);
-    const token = createToken(forToken, "2h");
+    const token = createToken(forToken, "10h");
 
     // Response
     const forUser = {
