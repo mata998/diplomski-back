@@ -9,7 +9,7 @@ function userFromTokenMid(req, res, next) {
 
       next();
     } else {
-      res.json({ success: false, err: "Nema tokena" });
+      res.json({ success: false, err: "No token" });
     }
   } catch (err) {
     res.json({ success: false, err: err.message });
@@ -25,7 +25,7 @@ function isAdminMid(req, res, next) {
   }
   // User is not admin
   else {
-    return res.json({ success: false, msg: "nije admin" });
+    return res.json({ success: false, msg: "Not admin" });
   }
 }
 

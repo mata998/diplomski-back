@@ -3,6 +3,7 @@ const fs = require("fs");
 const router = express.Router();
 const DB = require("../db-files/db-functions");
 const { userFromTokenMid } = require("../middlewares/middlewares");
+const { cookieParser } = require("../utils/utils");
 
 // api/courses/
 
@@ -109,7 +110,7 @@ router.get("/video", userFromTokenMid, function (req, res) {
 
     if (user.role != "admin" && !user.courses.includes(parseInt(courseId))) {
       console.log("Unauthorized video request");
-      return res.send({ msg: "Video locked" });
+      return res.json({ msg: "Video locked" });
     }
 
     const path = `volume-folder/${videoName}.mp4`;

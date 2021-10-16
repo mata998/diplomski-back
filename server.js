@@ -8,7 +8,7 @@ const cors = require("cors");
 const fileUpload = require("express-fileupload");
 
 // Routes requires
-const courseRouter = require("./routes/courseRouter");
+const coursesRouter = require("./routes/coursesRouter");
 const loginRouter = require("./routes/loginRouter");
 const adminRouter = require("./routes/adminRouter");
 const { userFromTokenMid, isAdminMid } = require("./middlewares/middlewares");
@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(fileUpload());
 
 // Routes
-app.use("/api/courses", courseRouter);
+app.use("/api/courses", coursesRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/admin", userFromTokenMid, isAdminMid, adminRouter);
 

@@ -35,7 +35,6 @@ router.post("/", async (req, res) => {
 
     // Response
     const forUser = {
-      userId: user.userid,
       name: user.name,
       mail: user.mail,
       role: user.role,
