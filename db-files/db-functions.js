@@ -62,7 +62,6 @@ async function getUserForToken(userId) {
   return user;
 }
 
-// TODO: ADD TRANSACTION
 async function registerUser(user) {
   let connection;
 
@@ -239,6 +238,18 @@ async function insertVideos(videosDB) {
   return data;
 }
 
+async function deleteVideosInFolder(path) {
+  const [data, smth] = await pool.query(
+    `
+    delete from video 
+    where path like CONCAT(?, "%")
+    `,
+    [path]
+  );
+
+  return data;
+}
+
 module.exports = {
   pool,
   getAll,
@@ -256,4 +267,5 @@ module.exports = {
   getAllRequestedCourses,
   approveCourseRequest,
   deleteUserCourse,
+  deleteVideosInFolder,
 };

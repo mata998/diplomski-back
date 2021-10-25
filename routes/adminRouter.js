@@ -215,6 +215,29 @@ router.post("/videos", async function (req, res) {
   }
 });
 
+router.delete("/folder", async function (req, res) {
+  try {
+    const path = req.query.path;
+
+    // Delete from table video
+    const data = await DB.deleteVideosInFolder(path);
+    console.log(data);
+
+    if (data.affectedRows > 0) {
+      // Delete folder
+      const fullPath = `volume-folder/${path}`;
+      fs.rmdirSync(fullPath, { recursive: true });
+
+      res.json({ success: true, msg: "Folder deleted" });
+    } else {
+      res.json({ success: false, err: "0 rows deleted" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({ success: false, err: err.message });
+  }
+});
+
 // Users
 
 router.get("/users", async (req, res) => {
