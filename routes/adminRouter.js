@@ -4,8 +4,6 @@ const util = require("util");
 const fs = require("fs");
 const path = require("path");
 const DB = require("../db-files/db-functions");
-const { userFromTokenMid, isAdminMid } = require("../middlewares/middlewares");
-const { createToken, checkFingerPrint } = require("../utils/utils");
 
 // Is admin
 

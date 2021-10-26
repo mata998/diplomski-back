@@ -100,6 +100,28 @@ async function deleteUser(userId) {
   await pool.query(`delete from user where userid=?`, [userId]);
 }
 
+async function createLoginToken(userId, loginToken) {
+  const [data, smth] = await pool.query(
+    `
+    INSERT INTO logintoken(userid, logintoken) VALUES (?,?)
+    `,
+    [userId, loginToken]
+  );
+
+  return data;
+}
+
+async function logout(loginToken) {
+  const [data, smth] = await pool.query(
+    `
+    DELETE FROM logintoken WHERE logintoken=?
+    `,
+    [loginToken]
+  );
+
+  return data;
+}
+
 // Courses
 
 async function getUnlockedCourses(userId) {
@@ -268,4 +290,6 @@ module.exports = {
   approveCourseRequest,
   deleteUserCourse,
   deleteVideosInFolder,
+  createLoginToken,
+  logout,
 };

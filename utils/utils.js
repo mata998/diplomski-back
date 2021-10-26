@@ -20,12 +20,14 @@ function cookieParser(cookie) {
   return parsedObject;
 }
 
-function createToken(data, expiresIn) {
-  const token = jwt.sign({ data }, process.env.JWT_SECRET, {
-    expiresIn,
-  });
+function createToken(data, secret, expiresIn) {
+  if (expiresIn) {
+    return jwt.sign({ data }, secret, {
+      expiresIn,
+    });
+  }
 
-  return token;
+  return jwt.sign({ data }, secret);
 }
 
 function validateFingerprints(f1, f2) {
