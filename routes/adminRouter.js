@@ -4,6 +4,11 @@ const util = require("util");
 const fs = require("fs");
 const path = require("path");
 const DB = require("../db-files/db-functions");
+const {
+  getVideoDuration,
+  calculateVideoDurations,
+  countSubStrings,
+} = require("../utils/utils");
 
 // Is admin
 
@@ -124,8 +129,11 @@ router.delete("/videos/:videoId", async (req, res) => {
 
     const dirPath = path.dirname(fullPath);
 
-    // If folder is empy, delete it
-    if (fs.readdirSync(dirPath).length === 0) {
+    // If folder is not root && is empy, delete it
+    if (
+      countSubStrings(dirPath, "/") >= 3 &&
+      fs.readdirSync(dirPath).length === 0
+    ) {
       fs.rmdirSync(dirPath);
     }
 
@@ -155,10 +163,10 @@ router.post("/videos", async function (req, res) {
       ? req.body.paths
       : [req.body.paths];
 
-    console.log(files);
-    console.log(paths);
+    // console.log(files);
+    // console.log(paths);
 
-    const videosDB = [];
+    const videosData = [];
 
     const promises = [];
 
@@ -190,19 +198,23 @@ router.post("/videos", async function (req, res) {
       // videoDB object
       videoObj = {
         courseid: videoPath.split("/")[0],
-        name: path.basename(videoPath),
+        // name: path.basename(videoPath),
+        name: path.parse(videoPath).name,
         path: videoPath,
       };
 
       // Add video object to videosDB arr for db insert
-      videosDB.push(videoObj);
+      videosData.push(videoObj);
     });
 
     // Every file uploaded
     await Promise.all(promises);
 
+    // Calculate all video durations
+    calculateVideoDurations(videosData);
+
     // Add to db
-    const result = await DB.insertVideos(videosDB);
+    const result = await DB.insertVideos(videosData);
     console.log(result);
 
     return res.json({ success: true, msg: "Files uploaded" });
@@ -216,6 +228,15 @@ router.post("/videos", async function (req, res) {
 router.delete("/folder", async function (req, res) {
   try {
     const path = req.query.path;
+
+    if (path.endsWith("/")) {
+      console.log(`Path ${path} ends with /`);
+      return res.json({ success: false, err: "Path ends with /" });
+    }
+    if (countSubStrings(path, "/") < 2) {
+      console.log(`Path ${path} is root folder`);
+      return res.json({ success: false, err: "Path is root folder" });
+    }
 
     // Delete from table video
     const data = await DB.deleteVideosInFolder(path);

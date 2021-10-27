@@ -1,4 +1,10 @@
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const VideoLib = require("node-video-lib");
+
+function countSubStrings(string, subString) {
+  return string.split(subString).length - 1;
+}
 
 function parseToken(token) {
   const parsed = jwt.verify(token, process.env.JWT_SECRET);
@@ -64,10 +70,39 @@ function checkFingerPrint(f, array) {
   return false;
 }
 
+function getVideoDuration(videoPath) {
+  if (!videoPath.endsWith(".mp4")) {
+    console.log("Not .mp4");
+    return 0;
+  }
+
+  try {
+    const fd = fs.openSync(videoPath, "r");
+    let movie = VideoLib.MovieParser.parse(fd);
+    // Work with movie
+    const duration = Math.floor(movie.relativeDuration());
+
+    return duration;
+  } catch (err) {
+    console.log("getVideoDuration error");
+    console.log(err);
+    return 0;
+  }
+}
+
+function calculateVideoDurations(videosData) {
+  videosData.forEach((video) => {
+    video.duration = getVideoDuration(`volume-folder/${video.path}`);
+  });
+}
+
 module.exports = {
+  countSubStrings,
   parseToken,
   cookieParser,
   createToken,
   validateFingerprints,
   checkFingerPrint,
+  getVideoDuration,
+  calculateVideoDurations,
 };

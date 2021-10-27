@@ -106,6 +106,11 @@ router.get("/video", userFromTokenMid, function (req, res) {
     const user = req.user;
     const videoName = req.query.name;
 
+    if (!videoName) {
+      console.log("No video name");
+      return res.json({ msg: "No name" });
+    }
+
     const courseId = videoName.split("/")[0];
 
     if (user.role != "admin" && !user.courses.includes(parseInt(courseId))) {
@@ -113,7 +118,8 @@ router.get("/video", userFromTokenMid, function (req, res) {
       return res.json({ msg: "Video locked" });
     }
 
-    const path = `volume-folder/${videoName}.mp4`;
+    console.log(videoName);
+    const path = `volume-folder/${videoName}`;
     const stat = fs.statSync(path);
     const fileSize = stat.size;
     const range = req.headers.range;

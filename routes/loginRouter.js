@@ -8,18 +8,52 @@ async function login(userId, fingerprint, loginToken) {
   // User data, his courses and  fingerprints
   const user = await DB.getUserForToken(userId);
 
-  // console.log(user);
-
   // User doesnt exist
   if (!user) {
-    // return res.send({ case: "register", msg: "User doesnt exist" });
     return { case: "register", msg: "User doesnt exist" };
   }
 
-  // Fingerprints doesnt match
+  // Fingerprints dont match
   if (!checkFingerPrint(fingerprint, user.fingerprints)) {
-    // return res.send({ case: "fingerprint", msg: "Bad fingerprint" });
     return { case: "fingerprint", msg: "Bad fingerprint" };
+  }
+
+  // logintoken check
+
+  // autologin
+  if (loginToken) {
+    // User doesnt have login token
+    if (user.logintoken === null) {
+      throw new Error("User doesnt have login token");
+    }
+
+    // Tokens dont match
+    if (user.logintoken && user.logintoken !== loginToken) {
+      throw new Error("Login tokens dont match");
+    }
+
+    // If it continues
+    // user.logintoken === loginToken
+    // and it is returned to user
+    //
+  }
+  // normal login
+  else {
+    // user.logintoken exists
+    if (user.logintoken) {
+      loginToken = user.logintoken;
+    }
+    // user.logintoken doesnt exist
+    else {
+      // create new
+      loginToken = createToken(
+        { userid: user.userid },
+        process.env.JWT_LOGINTOKEN_SECRET
+      );
+
+      // Update login token in user table
+      const data = await DB.updateLoginToken(user.userid, loginToken);
+    }
   }
 
   //  Token creation
@@ -33,21 +67,6 @@ async function login(userId, fingerprint, loginToken) {
   console.log(forToken);
   const token = createToken(forToken, process.env.JWT_SECRET, "10h");
 
-  let newLoginToken;
-
-  if (loginToken) {
-    newLoginToken = loginToken;
-  } else {
-    // Login token creation
-    newLoginToken = createToken(
-      { userid: user.userid },
-      process.env.JWT_LOGINTOKEN_SECRET
-    );
-
-    // Insert login token into logintoken table
-    const data = await DB.createLoginToken(user.userid, newLoginToken);
-  }
-
   // Response
   const forUser = {
     name: user.name,
@@ -55,7 +74,7 @@ async function login(userId, fingerprint, loginToken) {
     role: user.role,
     courses: user.courses,
     token: token,
-    loginToken: newLoginToken,
+    loginToken: loginToken,
   };
 
   return { case: "login", data: forUser };
@@ -69,7 +88,7 @@ router.post("/", async (req, res) => {
 
     res.json(respData);
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
     res.json({ success: false, err: err.message });
   }
 });
@@ -78,16 +97,16 @@ router.post("/autologin", async (req, res) => {
   try {
     const { loginToken, fingerprint } = req.body;
 
-    const rows = await DB.getWhere("logintoken", "logintoken", loginToken);
+    // Get userid from logintoken
+    const rows = await DB.getWhere("user", "logintoken", loginToken);
 
     const userId = rows[0].userid;
-    console.log(userId);
 
     const respData = await login(userId, fingerprint, loginToken);
 
     res.json(respData);
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
     res.json({ success: false, err: err.message });
   }
 });
@@ -108,13 +127,13 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/logout", async (req, res) => {
+router.patch("/logoutdevices", userFromTokenMid, async (req, res) => {
   try {
-    const loginToken = req.body.loginToken;
+    const user = req.user;
 
-    const data = await DB.logout(loginToken);
+    const data = await DB.deleteLoginToken(user.userid);
 
-    console.log(`Logout successful`);
+    console.log(`Login token removed for ${user.name}`);
     res.json({ success: true, msg: "Logout successful" });
   } catch (err) {
     console.log("Failed logout");

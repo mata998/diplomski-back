@@ -97,26 +97,33 @@ async function registerUser(user) {
 }
 
 async function deleteUser(userId) {
-  await pool.query(`delete from user where userid=?`, [userId]);
+  const [data, smth] = await pool.query(`delete from user where userid=?`, [
+    userId,
+  ]);
+  return data;
 }
 
-async function createLoginToken(userId, loginToken) {
+async function updateLoginToken(userId, loginToken) {
   const [data, smth] = await pool.query(
     `
-    INSERT INTO logintoken(userid, logintoken) VALUES (?,?)
+    update user 
+    set logintoken=? 
+    where userid=?
     `,
-    [userId, loginToken]
+    [loginToken, userId]
   );
 
   return data;
 }
 
-async function logout(loginToken) {
+async function deleteLoginToken(userId) {
   const [data, smth] = await pool.query(
     `
-    DELETE FROM logintoken WHERE logintoken=?
+    update user 
+    set logintoken = NULL 
+    where userid = ?
     `,
-    [loginToken]
+    [userId]
   );
 
   return data;
@@ -241,6 +248,8 @@ async function deleteCourse(courseId) {
   const [data, smth] = await pool.query(`delete from course where courseid=?`, [
     courseId,
   ]);
+
+  return data;
 }
 
 // Videos
@@ -249,12 +258,21 @@ async function deleteVideo(videoId) {
   const [data, smth] = await pool.query(`delete from video where videoid=?`, [
     videoId,
   ]);
+
+  return data;
 }
 
-async function insertVideos(videosDB) {
+async function insertVideos(videosData) {
   const [data, fields] = await pool.query(
-    "INSERT INTO video (courseid, name, path) VALUES ?",
-    [videosDB.map((video) => [video.courseid, video.name, video.path])]
+    "INSERT INTO video (courseid, name, path, duration) VALUES ?",
+    [
+      videosData.map((video) => [
+        video.courseid,
+        video.name,
+        video.path,
+        video.duration,
+      ]),
+    ]
   );
 
   return data;
@@ -290,6 +308,6 @@ module.exports = {
   approveCourseRequest,
   deleteUserCourse,
   deleteVideosInFolder,
-  createLoginToken,
-  logout,
+  updateLoginToken,
+  deleteLoginToken,
 };
