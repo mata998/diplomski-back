@@ -34,32 +34,8 @@ app.listen(3000, function () {
   console.log(`Listening on port 3000!`);
 });
 
-const fs = require("fs");
-const VideoLib = require("node-video-lib");
-
 app.get("/test", async (req, res) => {
   console.log("test");
-  // "volume-folder/video1.mp4"
-
-  try {
-    console.log(getVideoDuration("volume-folder/video1.mp4"));
-  } catch (ex) {
-    console.error("Error:", ex);
-  }
 
   res.json({ msg: "blabla" });
 });
-
-function getVideoDuration(videoPath) {
-  if (!videoPath.endsWith(".mp4")) {
-    console.log("Not .mp4");
-    return 0;
-  }
-
-  const fd = fs.openSync(videoPath, "r");
-  let movie = VideoLib.MovieParser.parse(fd);
-  // Work with movie
-  const duration = Math.floor(movie.relativeDuration());
-
-  return duration;
-}
