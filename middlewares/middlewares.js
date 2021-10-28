@@ -19,8 +19,12 @@ function userFromTokenMid(req, res, next) {
 function isAdminMid(req, res, next) {
   const user = req.user;
 
+  if (!user) {
+    return res.json({ success: false, msg: "No user in req" });
+  }
+
   // User is admin
-  if (user.role == "admin") {
+  if (user.role === "admin") {
     next();
   }
   // User is not admin
