@@ -204,7 +204,7 @@ async function getAllRequestedCourses() {
 }
 
 async function approveCourseRequest(userId, courseId) {
-  const [data, fields] = pool.query(
+  const [data, smth] = await pool.query(
     `
     update usercourse
     set unlockedat =  SYSDATE()
@@ -220,7 +220,7 @@ async function approveCourseRequest(userId, courseId) {
 }
 
 async function deleteUserCourse(userId, courseId) {
-  const [data, smth] = pool.query(
+  const [data, smth] = await pool.query(
     `
     delete from usercourse
     where 
