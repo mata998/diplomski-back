@@ -2,6 +2,7 @@
 .vsCode/
 .dockerignore
 docker-compose.yml
+docker-compose-prod
 Dockerfile
 node_modules
 build

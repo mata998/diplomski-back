@@ -3,6 +3,7 @@ const { cookieParser, parseToken } = require("../utils/utils");
 function userFromTokenMid(req, res, next) {
   try {
     const cookies = cookieParser(req.headers.cookie);
+
     if (cookies.token) {
       // Add user object to req
       req.user = parseToken(cookies.token);

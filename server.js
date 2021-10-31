@@ -35,7 +35,7 @@ app.listen(3000, function () {
 });
 
 app.get("/test", async (req, res) => {
-  console.log("test");
+  console.log("Test route");
 
-  res.json({ msg: "blabla" });
+  res.json({ msg: "aa" });
 });
