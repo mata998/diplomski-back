@@ -254,6 +254,24 @@ async function deleteCourse(courseId) {
 
 // Videos
 
+async function getVideosSorted(courseId) {
+  const [rows, fields] = await pool.query(
+    `
+    select *
+    from video
+    where courseid = ?
+    order by path
+  `,
+    [courseId]
+  );
+
+  if (rows.length != 0) {
+    return rows;
+  } else {
+    throw new Error("No videos found");
+  }
+}
+
 async function deleteVideo(videoId) {
   const [data, smth] = await pool.query(`delete from video where videoid=?`, [
     videoId,
@@ -310,4 +328,5 @@ module.exports = {
   deleteVideosInFolder,
   updateLoginToken,
   deleteLoginToken,
+  getVideosSorted,
 };

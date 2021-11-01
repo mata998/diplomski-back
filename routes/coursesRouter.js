@@ -91,7 +91,8 @@ router.get("/videos/:courseId", userFromTokenMid, async (req, res) => {
       return res.json({ success: false, err: "You dont own this course" });
     }
 
-    const data = await DB.getWhere("video", "courseid", courseId);
+    // const data = await DB.getWhere("video", "courseid", courseId);
+    const data = await DB.getVideosSorted(courseId);
 
     res.json({ success: true, data });
   } catch (err) {
