@@ -10,7 +10,7 @@
     "start": "node server.js",
     "dev": "nodemon -L",
     "dbuild": "docker image build -t mata998/udemy-test . && docker image push mata998/udemy-test",
-    "fullbuild": "cd ../diplomski-front && npm run dbuild && cd ../diplomski-back && npm run dbuild"
+    "fullbuild": "npm run dbuild && cd ../diplomski-front && npm run dbuild"
   },
   "author": "daspinola",
   "license": "MIT",
