@@ -18,27 +18,8 @@ async function login(userId, fingerprint, loginToken) {
     return { case: "fingerprint", msg: "Bad fingerprint" };
   }
 
-  // logintoken check
-
-  // autologin
-  if (loginToken) {
-    // User doesnt have login token
-    if (user.logintoken === null) {
-      throw new Error("User doesnt have login token");
-    }
-
-    // Tokens dont match
-    if (user.logintoken && user.logintoken !== loginToken) {
-      throw new Error("Login tokens dont match");
-    }
-
-    // If it continues
-    // user.logintoken === loginToken
-    // and it is returned to user
-    //
-  }
   // normal login
-  else {
+  if (!loginToken) {
     // user.logintoken exists
     if (user.logintoken) {
       loginToken = user.logintoken;
@@ -122,7 +103,7 @@ router.post("/register", async (req, res) => {
     res.json({ success: true, data: user.uid });
   } catch (err) {
     console.log("Neuspesan register");
-    console.log(err.message);
+    console.log(err);
     res.json({ success: false, err: err.message });
   }
 });
@@ -139,6 +120,33 @@ router.patch("/logoutdevices", userFromTokenMid, async (req, res) => {
     console.log("Failed logout");
     console.log(err.message);
     res.json({ success: false, err: err.message });
+  }
+});
+
+router.post("/refresh-token", userFromTokenMid, async (req, res) => {
+  try {
+    const user = req.user;
+    const fingerprint = req.body.fingerprint;
+
+    const rows = await DB.getUserFingerprints(user.userid);
+
+    // Fingerprints match
+    if (checkFingerPrint(fingerprint, rows)) {
+      const token = createToken(user, process.env.JWT_SECRET, "10h");
+
+      return res.json({ success: true, data: token });
+    }
+    // Fingerprints dont match
+    else {
+      return res.json({
+        success: false,
+        err: "Bad fingerprint for refresh token",
+      });
+    }
+  } catch (err) {
+    console.log("Error in refresh token");
+    console.log(err.message);
+    return res.json({ success: false, err: err.message });
   }
 });
 

@@ -37,32 +37,37 @@ function createToken(data, secret, expiresIn) {
 }
 
 function validateFingerprints(f1, f2) {
-  f1 = JSON.parse(f1);
-  f2 = JSON.parse(f2);
-
   if (
+    // f1.screen == f2.screen &&
     f1.gpu == f2.gpu &&
     f1.cores == f2.cores &&
     f1.platform == f2.platform &&
     f1.orientation == f2.orientation
-    // f1.screen == f2.screen
   ) {
     // Fingerprints matching
     return true;
-  } else {
-    // Fingerprints not matching
-    console.log("\n\nPOSLAT\n");
-    console.log(f1);
-    console.log("\n\nPRAVI\n");
-    console.log(f2);
+  }
+  // Fingerprints not matching
+  else {
+    // console.log("\n\nPOSLAT\n");
+    // console.log(f1);
+    // console.log("\n\nPRAVI\n");
+    // console.log(f2);
 
     return false;
   }
 }
 
-function checkFingerPrint(f, array) {
-  for (let i = 0; i < array.length; i++) {
-    if (validateFingerprints(f, array[i])) {
+function checkFingerPrint(fingerprint, array) {
+  // fingerprint: Object
+  // array: Array<String | Object>
+
+  for (let oneFp of array) {
+    if (typeof oneFp === "string") {
+      oneFp = JSON.parse(oneFp);
+    }
+
+    if (validateFingerprints(fingerprint, oneFp)) {
       return true;
     }
   }

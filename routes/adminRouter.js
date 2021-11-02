@@ -229,18 +229,18 @@ router.delete("/folder", async function (req, res) {
   try {
     const path = req.query.path;
 
-    if (path.endsWith("/")) {
-      console.log(`Path ${path} ends with /`);
-      return res.json({ success: false, err: "Path ends with /" });
+    if (!path.endsWith("/")) {
+      console.log(`Path ${path} doesnt end with /`);
+      return res.json({ success: false, err: "Path doesnt end with /" });
     }
-    if (countSubStrings(path, "/") < 2) {
+
+    if (countSubStrings(path, "/") <= 2) {
       console.log(`Path ${path} is root folder`);
       return res.json({ success: false, err: "Path is root folder" });
     }
 
     // Delete from table video
     const data = await DB.deleteVideosInFolder(path);
-    console.log(data);
 
     if (data.affectedRows > 0) {
       // Delete folder

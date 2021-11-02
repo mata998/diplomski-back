@@ -83,7 +83,7 @@ async function registerUser(user) {
         INSERT INTO userfingerprint (userid, fingerprint)
         VALUES (?, ?)
       `,
-      [user.uid, user.fingerprint]
+      [user.uid, JSON.stringify(user.fingerprint)]
     );
 
     connection.commit();
@@ -127,6 +127,24 @@ async function deleteLoginToken(userId) {
   );
 
   return data;
+}
+
+async function getUserFingerprints(userId) {
+  const [rows, fields] = await pool.query(
+    `
+    select fingerprint
+    from userfingerprint
+    where 
+      userid = ?
+  `,
+    [userId]
+  );
+
+  if (rows.length != 0) {
+    return rows.map((row) => row.fingerprint);
+  } else {
+    throw new Error("No courses found");
+  }
 }
 
 // Courses
@@ -329,4 +347,5 @@ module.exports = {
   updateLoginToken,
   deleteLoginToken,
   getVideosSorted,
+  getUserFingerprints,
 };
