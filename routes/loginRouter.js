@@ -54,19 +54,20 @@ async function login(userId, fingerprint, loginToken) {
     mail: user.mail,
     role: user.role,
     courses: user.courses,
-    token: token,
     loginToken: loginToken,
+    // token: token,
   };
 
-  return { case: "login", data: forUser };
+  return { respData: { case: "login", data: forUser }, token };
 }
 
 router.post("/", async (req, res) => {
   try {
     const { userId, fingerprint } = req.body;
 
-    const respData = await login(userId, fingerprint);
+    const { respData, token } = await login(userId, fingerprint);
 
+    res.cookie("token", token, { httpOnly: true });
     res.json(respData);
   } catch (err) {
     console.log(err.message);
@@ -83,8 +84,9 @@ router.post("/autologin", async (req, res) => {
 
     const userId = rows[0].userid;
 
-    const respData = await login(userId, fingerprint, loginToken);
+    const { respData, token } = await login(userId, fingerprint, loginToken);
 
+    res.cookie("token", token, { httpOnly: true });
     res.json(respData);
   } catch (err) {
     console.log(err.message);
@@ -134,7 +136,8 @@ router.post("/refresh-token", userFromTokenMid, async (req, res) => {
     if (checkFingerPrint(fingerprint, rows)) {
       const token = createToken(user, process.env.JWT_SECRET, "10h");
 
-      return res.json({ success: true, data: token });
+      res.cookie("token", token, { httpOnly: true });
+      return res.json({ success: true });
     }
     // Fingerprints dont match
     else {
