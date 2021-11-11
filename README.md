@@ -1,2 +1,1 @@
-Readme sa
-lokala
+Readme
