@@ -37,7 +37,7 @@ app.listen(3000, () => {
 });
 
 app.get("/test", async (req, res) => {
-  console.log("Test route");
+  console.log(`sifra: ${process.env.NESTO}`);
 
-  res.json({ msg: "test aa" });
+  res.json({ msg: `sifra: ${process.env.NESTO}` });
 });

@@ -1,8 +1,11 @@
 .DS_STORE
 .vsCode/
+
+# env
+.env
+
+# docker
 .dockerignore
-docker-compose.yml
-docker-compose-prod
-Dockerfile
+
+# dependencies
 node_modules
-build

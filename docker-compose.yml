@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  web-server:
+    build: .
+    command: npm run dev
+    volumes:
+      - .:/usr/src/app
+      - C:/Users/matej/Desktop/videi:/usr/src/app/volume-folder
+    ports:
+      - 3000:3000
+    environment:
+      - DB_HOST
+      - DB_PORT
+      - DB_DATABASE
+      - DB_USER
+      - DB_PASSWORD
+      - JWT_SECRET
+      - JWT_LOGINTOKEN_SECRET
+      - NESTO

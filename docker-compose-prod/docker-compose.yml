@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db-mysql:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+
+  web-server:
+    image: ${WEB_SERVER_IMAGE}
+    ports:
+      - 3000:3000
+    volumes:
+      - ./videos:/usr/src/app/volume-folder
+    environment:
+      - DB_HOST
+      - DB_PORT
+      - DB_DATABASE
+      - DB_USER
+      - DB_PASSWORD
+      - JWT_SECRET
+      - JWT_LOGINTOKEN_SECRET
+      - NESTO
+    restart: always
+    depends_on:
+      - db
+
+  front:
+    image: ${FRONT_IMAGE}
+    ports:
+      - 5000:80
+    restart: always
