@@ -10,12 +10,12 @@ async function login(userId, fingerprint, loginToken) {
 
   // User doesnt exist
   if (!user) {
-    return { case: "register", msg: "User doesnt exist" };
+    return { respData: { case: "register", msg: "User doesnt exist" } };
   }
 
   // Fingerprints dont match
   if (!checkFingerPrint(fingerprint, user.fingerprints)) {
-    return { case: "fingerprint", msg: "Bad fingerprint" };
+    return { respData: { case: "fingerprint", msg: "Bad fingerprint" } };
   }
 
   // normal login
@@ -67,6 +67,8 @@ router.post("/", async (req, res) => {
 
     const { respData, token } = await login(userId, fingerprint);
 
+    console.log("resp: ");
+    console.log(respData);
     res.cookie("token", token, { httpOnly: true });
     res.json(respData);
   } catch (err) {
