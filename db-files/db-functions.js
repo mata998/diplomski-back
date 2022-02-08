@@ -176,10 +176,10 @@ async function getAllCoursesForUser(userId) {
     from course c
       left join (select * from usercourse where userid = ?) uc 
         on (c.courseid = uc.courseid)
-        order by 
-          uc.finishedat asc, 
-          uc.userid asc, 
-          uc.unlockedat asc
+    order by 
+      uc.finishedat asc, 
+      uc.userid asc, 
+      uc.unlockedat asc
   `,
     [userId]
   );
