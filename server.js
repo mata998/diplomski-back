@@ -18,6 +18,7 @@ const corsOptions = {
     "http://localhost:3000",
     "http://localhost:5000",
     "http://35.198.186.251:5000",
+    "http://138.3.250.151:5000",
   ],
   credentials: true,
 };
