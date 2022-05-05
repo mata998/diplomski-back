@@ -3,6 +3,8 @@ const fs = require("fs");
 const VideoLib = require("node-video-lib");
 
 function countSubStrings(string, subString) {
+  if (!string) return 0;
+
   return string.split(subString).length - 1;
 }
 

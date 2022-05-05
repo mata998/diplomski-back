@@ -6,6 +6,9 @@ const app = express();
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 
+// env?
+require("dotenv").config();
+
 // Routes requires
 const coursesRouter = require("./routes/coursesRouter");
 const loginRouter = require("./routes/loginRouter");
@@ -19,6 +22,7 @@ const corsOptions = {
     "http://localhost:5000",
     "http://35.198.186.251:5000",
     "http://138.3.250.151:5000",
+    "http://185.187.169.222:5000",
   ],
   credentials: true,
 };
@@ -40,5 +44,7 @@ app.listen(3000, () => {
 app.get("/test", async (req, res) => {
   console.log(`sifra: ${process.env.NESTO}`);
 
-  res.json({ msg: `sifra: ${process.env.NESTO}` });
+  res.json({ msg: "ok" });
 });
+
+exports = app;

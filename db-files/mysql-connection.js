@@ -30,6 +30,7 @@ async function pingDB() {
     }
   }
 }
+
 pingDB();
 
 module.exports = pool;
