@@ -22,7 +22,7 @@ router.get("/isadmin", async (req, res) => {
 
 // Courses
 
-router.post("/create-course", async (req, res) => {
+router.post("/courses", async (req, res) => {
   try {
     const course = req.body;
 
@@ -43,7 +43,7 @@ router.post("/create-course", async (req, res) => {
   }
 });
 
-router.delete("/delete-course/:courseId", async (req, res) => {
+router.delete("/courses/:courseId", async (req, res) => {
   try {
     const courseId = req.params.courseId;
 
@@ -90,10 +90,10 @@ router.patch("/approve-course", async (req, res) => {
   }
 });
 
-router.post("/delete-usercourse", async (req, res) => {
+router.delete("/usercourse", async (req, res) => {
   try {
-    const userId = req.body.userId;
-    const courseId = req.body.courseId;
+    const userId = req.query.userId;
+    const courseId = req.query.courseId;
 
     const resp = await DB.deleteUserCourse(userId, courseId);
 
@@ -276,16 +276,6 @@ router.delete("/users/:userId", async (req, res) => {
     await DB.deleteUser(userId);
 
     res.json({ success: true, msg: "User deleted" });
-  } catch (err) {
-    res.json({ success: false, err: err.message });
-  }
-});
-
-router.get("/creators", async (req, res) => {
-  try {
-    const users = await DB.getWhere("user", "role", "creator");
-
-    return res.json({ success: true, data: users });
   } catch (err) {
     res.json({ success: false, err: err.message });
   }

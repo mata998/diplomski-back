@@ -9,3 +9,5 @@ process.env.DB_PASSWORD = `lozinka123`;
 process.env.JWT_SECRET = `ideeeebrejakasiframnogoo`;
 process.env.JWT_LOGINTOKEN_SECRET = `maaamnogobrejakasifranekazalogintoken`;
 process.env.NESTO = `omggOvoRadi`;
+
+//////

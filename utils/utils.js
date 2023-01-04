@@ -39,6 +39,12 @@ function createToken(data, secret, expiresIn) {
 }
 
 function validateFingerprints(f1, f2) {
+  console.log("\nTO VALIDATE \n\n");
+
+  console.log(f1.gpu, f1.cores, f1.platform, f1.orientation);
+  console.log("\n");
+  console.log(f2.gpu, f2.cores, f2.platform, f2.orientation);
+
   if (
     // f1.screen == f2.screen &&
     f1.gpu == f2.gpu &&

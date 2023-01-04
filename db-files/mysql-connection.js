@@ -1,5 +1,5 @@
 const mysql = require("mysql2/promise");
-
+//proslineki=138.3.250.151
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,

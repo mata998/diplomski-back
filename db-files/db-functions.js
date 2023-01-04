@@ -30,7 +30,8 @@ async function getWhere(tableName, field, value) {
 async function getUserForToken(userId) {
   const [rows, fields] = await pool.query(
     `
-    select u.*, uc.courseid, uc.unlockedat, uc.finishedat, uf.fingerprint from user u
+    select u.*, uc.courseid, uc.unlockedat, uc.finishedat, uf.fingerprint 
+    from user u
 	    left join usercourse uc on (u.userid = uc.userid)
       left join userfingerprint uf on (u.userid = uf.userid)
     where 

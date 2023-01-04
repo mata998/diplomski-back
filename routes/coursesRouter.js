@@ -17,21 +17,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/info/:courseId", async (req, res) => {
-  try {
-    const courseId = req.params.courseId;
-
-    const data = await DB.getWhere("course", "courseid", courseId);
-
-    const course = data[0];
-
-    res.json({ success: true, data: course });
-  } catch (err) {
-    console.log(err.message);
-    res.json({ success: false, err: err.message });
-  }
-});
-
 // With token
 
 router.get("/request-course/:courseId", userFromTokenMid, async (req, res) => {
@@ -157,6 +142,23 @@ router.get("/video", userFromTokenMid, function (req, res) {
     }
   } catch (err) {
     res.json({ err: err.message });
+  }
+});
+
+// Get one course
+
+router.get("/:courseId", async (req, res) => {
+  try {
+    const courseId = req.params.courseId;
+
+    const data = await DB.getWhere("course", "courseid", courseId);
+
+    const course = data[0];
+
+    res.json({ success: true, data: course });
+  } catch (err) {
+    console.log(err.message);
+    res.json({ success: false, err: err.message });
   }
 });
 
